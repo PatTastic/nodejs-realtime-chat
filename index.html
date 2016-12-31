@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>MSDN</title>
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font: 13px Helvetica, Arial; }
+            #controls > div { display: inline-block; }
+            #controls > div > button { height: 30px; width: 30px; cursor: pointer; }
+            form#chat { background: darkgrey; padding: 3px; position: absolute; bottom: 2px; width: 100%; display: inline-block; }
+            form#chat input { height: 30px; padding: 5px; width: calc(100% - 55px); }
+            form#chat button { height: 30px; width: 50px; cursor: pointer; }
+        </style>
+    </head>
+    <body>
+        <dl id="messages"></dl>
+        <form id="chat" action="">
+            <input id="m" autocomplete="off" />
+            <button>Send</button>
+        </form>
+        
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            $("form#chat").submit(function(){
+                return false;
+            });
+        </script>
+    </body>
+</html>
