@@ -9,8 +9,12 @@ Core.get("/", function(req, res){
 IO.on("connection", function(socket){
     console.log("a user connected");
     
+    socket.on("chat message", function(msg){
+        IO.emit("chat message", msg);
+    });
+    
     socket.on("disconnect", function(){
-        console.log("user " + curUser.nickname + " disconnected.");
+        console.log("user disconnected.");
     });
 });
 
