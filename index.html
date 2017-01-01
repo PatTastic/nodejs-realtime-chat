@@ -6,14 +6,31 @@
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font: 13px Helvetica, Arial; }
-            #controls > div { display: inline-block; }
-            #controls > div > button { height: 30px; width: 30px; cursor: pointer; }
+            form#begin { height: 100%; position: absolute; width: 100%; background-color: darkgrey; z-index: 1; }
+            form#begin div { position: absolute; top: calc(50% - 60px); left: calc(50% - 150px); width: 300px; text-align: center; }
+            form#begin input { outline: 0; background-color: darkgrey; width: 300px; font-size: 50px; border: 0; border-bottom: 3px solid white; }
+            form#begin button { cursor: pointer; font-size: 30px; width: 250px; margin-top: 10px; background-color: grey; border: 2px solid white; color: white; padding: 5px; border-radius: 10px; }
+            
             form#chat { background: darkgrey; padding: 3px; position: absolute; bottom: 2px; width: 100%; display: inline-block; }
             form#chat input { height: 30px; padding: 5px; width: calc(100% - 55px); }
             form#chat button { height: 30px; width: 50px; cursor: pointer; }
+            
+            #messages dl { position: relative; }
+            #messages dt,dd { display: inline-block; }
+            #messages dt { width: 100px; }
+            #messages dd { width: calc(100% - 100px); }
+            #messages span { display: block; }
+            #messages span:nth-child(odd) { background-color: #f2f2f2; }
+            #messages .sys { text-align: center; font-size: 15px; font-weight: bold; padding: 5px; }
         </style>
     </head>
     <body>
+        <form id="begin" action="">
+            <div>
+                <input id="nickname" maxlength="16" placeholder="Nickname" autofocus />
+                <button>Set Nickname</button>
+            </div>
+        </form>
         <dl id="messages"></dl>
         <form id="chat" action="">
             <input id="m" autocomplete="off" />
@@ -23,15 +40,39 @@
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script>
+            var user = {nickname: "", id: ""};
             var socket = io();
+            $("form#begin").submit(function(){
+                if($("#nickname").val() != ""){
+                    user = {
+                        nickname:$("#nickname").val(),
+                        id: socket.id
+                    }
+                    socket.emit("user joined", user);
+                    $("form#begin").hide();
+                    $("#m").focus();
+                }
+                return false;
+            });
             $("form#chat").submit(function(){
                 if($("#m").val() != ""){
-                    socket.emit("chat message", $("#m").val());
+                    var chat = {user: user, message: $("#m").val()};
+                    socket.emit("chat message", chat);
                     $("#m").val("");
                 }
                 return false;
             });
-            socket.on("chat message", function(message){
+            socket.on("user event", function(user){
+                var message = "<span class='sys'>" + user + ".</span>";
+                $("#messages").append(message);
+            });
+            socket.on("chat message", function(chat){
+                chat.message = chat.message.replace(/</g, "&lt;");
+                chat.message = chat.message.replace(/>/g, "&gt;");
+                
+                var message = "<dt>" + chat.user.nickname + "</dt>";
+                message += "<dd>" + chat.message + "</dd>";
+                
                 $("#messages").append(message);
             });
         </script>
