@@ -3,6 +3,7 @@
     <head>
         <title>MSDN</title>
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font: 13px Helvetica, Arial; }
@@ -11,9 +12,15 @@
             form#begin input { outline: 0; background-color: darkgrey; width: 300px; font-size: 50px; border: 0; border-bottom: 3px solid white; }
             form#begin button { cursor: pointer; font-size: 30px; width: 250px; margin-top: 10px; background-color: grey; border: 2px solid white; color: white; padding: 5px; border-radius: 10px; }
             
-            form#chat { background: darkgrey; padding: 3px; position: absolute; bottom: 2px; width: 100%; display: inline-block; }
+            #controls { background: darkgrey; padding: 3px; position: absolute; bottom: 2px; width: 100%; }
+            #controls > div { display: inline-block; }
+            #controls > div > button { height: 30px; width: 30px; cursor: pointer; }
+            form#chat { display: inline-block; width: calc(100% - 70px); }
             form#chat input { height: 30px; padding: 5px; width: calc(100% - 55px); }
             form#chat button { height: 30px; width: 50px; cursor: pointer; }
+            
+            #flyouts { position: absolute; bottom: 38px; width: 100%; }
+            #flyouts > div { display: none; }
             
             #messages dl { position: relative; }
             #messages dt,dd { display: inline-block; }
@@ -22,32 +29,84 @@
             #messages span { display: block; }
             #messages span:nth-child(odd) { background-color: #f2f2f2; }
             #messages .sys { text-align: center; font-size: 15px; font-weight: bold; padding: 5px; }
+            .set-colour { overflow: hidden; height: 37px; outline: 0; }
+            .set-colour option { height: 35px; width: 30px; display: inline-block; }
+            option[value=black]{background-color:black;}
+            option[value=green]{background-color:green;}
+            option[value=blue]{background-color:blue;}
+            option[value=yellow]{background-color:yellow}
+            option[value=red]{background-color:red}
         </style>
     </head>
     <body>
         <form id="begin" action="">
             <div>
                 <input id="nickname" maxlength="16" placeholder="Nickname" autofocus />
+                <select class="set-colour" name="initial" size="5">
+                    <option value="black"></option>
+                    <option value="green"></option>
+                    <option value="blue"></option>
+                    <option value="yellow"></option>
+                    <option value="red"></option>
+                </select>
                 <button>Set Nickname</button>
             </div>
         </form>
         <dl id="messages"></dl>
-        <form id="chat" action="">
-            <input id="m" autocomplete="off" />
-            <button>Send</button>
-        </form>
+        <div id="flyouts">
+            <div id="fo-users">
+                <p>hi</p>
+            </div>
+            <div id="fo-options">
+                <form id="options" action="">
+                    <label for="bold">Bold</label>
+                    <input type="checkbox" value="bold" />
+                    <label for="italic">Italic</label>
+                    <input type="checkbox" value="italic" />
+                    <label for="strikethrough">Strikethrough</label>
+                    <input type="checkbox" value="strikethrough" />
+                    <label for="marquee">Marquee</label>
+                    <input type="checkbox" value="marquee" />
+                    <select class="set-colour" name="change" size="5">
+                        <option value="black"></option>
+                        <option value="green"></option>
+                        <option value="blue"></option>
+                        <option value="yellow"></option>
+                        <option value="red"></option>
+                    </select>
+                    <button>Save</button>
+                </form>
+            </div>
+        </div>
+        <div id="controls">
+            <div>
+                <button onclick="toggleFlyouts('users')">
+                    <i class="fa fa-user-circle"></i>
+                </button>
+                <button onclick="toggleFlyouts('options')">
+                    <i class="fa fa-tint"></i>
+                </button>
+            </div>
+            <form id="chat" action="">
+                <input id="m" autocomplete="off" />
+                <button>Send</button>
+            </form>
+        </div>
         
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script>
-            var user = {nickname: "", id: ""};
+            var user = {nickname: "", id: "", flair: {colour: "black", styles: "", marquee: false}};
             var socket = io();
             $("form#begin").submit(function(){
                 if($("#nickname").val() != ""){
-                    user = {
-                        nickname:$("#nickname").val(),
-                        id: socket.id
-                    }
+                    if($(".set-colour[name=initial]").val() == null
+                    || $(".set-colour[name=initial]").val() == "")
+                        user.flair.colour = "black";
+                    else
+                        user.flair.colour = $(".set-colour[name=initial]").val();
+                    user.nickname = $("#nickname").val();
+                    user.id = socket.id;
                     socket.emit("user joined", user);
                     $("form#begin").hide();
                     $("#m").focus();
@@ -62,6 +121,40 @@
                 }
                 return false;
             });
+            $("form#options").submit(function(){
+                var colour = $(".set-colour[name=change]").val();
+                user.flair.colour = colour;
+                user.flair.styles = styleBuilder();
+                if($("input[value=marquee]").is(":checked"))
+                    user.flair.marquee = true;
+                else
+                    user.flair.marquee = false;
+                
+                socket.emit("save options", user);
+                return false;
+            });
+            function toggleFlyouts(elem){
+                if(!($("#fo-" + elem).is(":visible")))
+                    $("#fo-" + elem).css("display", "inline-block");
+                else
+                    $("#fo-" + elem).removeAttr("style");
+                
+                if($("#fo-users").is(":visible")){
+                    socket.emit("get users");
+                }
+            }
+            function styleBuilder(){
+                var style = "";
+                
+                if($("input[value=bold]").is(":checked"))
+                    style = "font-weight:bold;";
+                if($("input[value=italic]").is(":checked"))
+                    style += "font-style:italic;";
+                if($("input[value=strikethrough]").is(":checked"))
+                    style += "text-decoration:line-through;";
+                
+                return style;
+            }
             socket.on("user event", function(user){
                 var message = "<span class='sys'>" + user + ".</span>";
                 $("#messages").append(message);
@@ -70,10 +163,25 @@
                 chat.message = chat.message.replace(/</g, "&lt;");
                 chat.message = chat.message.replace(/>/g, "&gt;");
                 
-                var message = "<dt>" + chat.user.nickname + "</dt>";
-                message += "<dd>" + chat.message + "</dd>";
+                var message = "<span><dt>";
+                message += "<p style='color:" + chat.user.flair.colour + ";";
+                message += user.flair.styles + "'>";
+                if(user.flair.marquee)
+                    message += "<marquee>" + chat.user.nickname + "</marquee></p>";
+                else
+                    message += chat.user.nickname + "</p>";
+                message += "</dt>";
+                message += "<dd>" + chat.message + "</dd></span>";
                 
                 $("#messages").append(message);
+            });
+            socket.on("list users", function(users){
+                $("#fo-users").html("Connected Users: " + users.length);
+                $("#fo-users").append("<br>" + user.nickname);
+                for(var i=0; i<users.length; i++){
+                    if(users[i].nickname != user.nickname)
+                        $("#fo-users").append("<br>" + users[i].nickname);
+                }
             });
         </script>
     </body>

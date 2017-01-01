@@ -20,6 +20,18 @@ IO.on("connection", function(socket){
         IO.emit("chat message", msg);
     });
     
+    socket.on("save options", function(user){
+        for(var i=0; i<users.length; i++){
+            if(users[i].id == this.client.id){
+                users[i] = user;
+            }
+        }
+    });
+    
+    socket.on("get users", function(){
+        IO.emit("list users", users);
+    });
+    
     socket.on("disconnect", function(){
         var curUser = {};
         for(var i=0; i<users.length; i++){
