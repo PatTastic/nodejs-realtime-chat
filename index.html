@@ -7,30 +7,42 @@
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font: 13px Helvetica, Arial; }
+            button { cursor: pointer; }
             form#begin { height: 100%; position: absolute; width: 100%; background-color: darkgrey; z-index: 1; }
-            form#begin div { position: absolute; top: calc(50% - 60px); left: calc(50% - 150px); width: 300px; text-align: center; }
+            form#begin div { position: absolute; top: calc(50% - 83px); left: calc(50% - 150px); width: 300px; text-align: center; }
             form#begin input { outline: 0; background-color: darkgrey; width: 300px; font-size: 50px; border: 0; border-bottom: 3px solid white; }
-            form#begin button { cursor: pointer; font-size: 30px; width: 250px; margin-top: 10px; background-color: grey; border: 2px solid white; color: white; padding: 5px; border-radius: 10px; }
+            form#begin button { font-size: 30px; width: 250px; margin-top: 10px; background-color: grey; border: 2px solid white; color: white; padding: 5px; border-radius: 10px; }
             
-            #controls { background: darkgrey; padding: 3px; position: absolute; bottom: 2px; width: 100%; }
+            #controls { background: darkgrey; padding: 3px; position: fixed; bottom: 2px; width: 100%; }
             #controls > div { display: inline-block; }
-            #controls > div > button { height: 30px; width: 30px; cursor: pointer; }
+            #controls > div > button { height: 30px; width: 30px; }
             form#chat { display: inline-block; width: calc(100% - 70px); }
             form#chat input { height: 30px; padding: 5px; width: calc(100% - 55px); }
-            form#chat button { height: 30px; width: 50px; cursor: pointer; }
+            form#chat button { height: 30px; width: 50px; }
             
-            #flyouts { position: absolute; bottom: 38px; width: 100%; }
+            #flyouts { position: fixed; bottom: 38px; width: 100%; height: 170px; margin-bottom: -2px; }
             #flyouts > div { display: none; }
+            #fo-users { height: 170px; width: 200px; overflow: auto; border: 2px solid #aaaaaa; border-top-right-radius: 10px; padding: 5px; background-color: white; }
+            #connUsers { border-bottom: 2px solid #aaaaaa; margin-left: -5px; padding-left: 5px; width: 75%; margin-bottom: 5px; }
+            #you > p { display: inline; }
+            #fo-options { border: 2px solid #aaaaaa; border-top-right-radius: 10px; padding: 5px; height: 170px; background-color: white; position: relative; }
+            #fo-options span { display: block; }
+            #fo-options label { width: 20px; }
+            #change-colour > label { display: block; margin-top: 10px; width: 100%; }
+            #fo-options span:last-child { display: block; width: 100%; text-align: center; margin-top: 10px; }
+            .both-options { bottom: 13px; margin-left: -6px; }
+            .both-users { border-top-right-radius: 0 !important; }
             
-            #messages dl { position: relative; }
+            #messages { position: absolute; height: calc(100% - 40px); width: 100%; overflow: auto;}
             #messages dt,dd { display: inline-block; }
             #messages dt { width: 100px; }
             #messages dd { width: calc(100% - 100px); }
-            #messages span { display: block; }
+            #messages span { display: block; padding-left: 5px; }
             #messages span:nth-child(odd) { background-color: #f2f2f2; }
             #messages .sys { text-align: center; font-size: 15px; font-weight: bold; padding: 5px; }
+            .set-colour[name=initial] { margin-top: 10px; }
             .set-colour { overflow: hidden; height: 37px; outline: 0; }
-            .set-colour option { height: 35px; width: 30px; display: inline-block; }
+            .set-colour option { height: 35px; width: 30px; display: inline-block; cursor: pointer; }
             option[value=black]{background-color:black;}
             option[value=green]{background-color:green;}
             option[value=blue]{background-color:blue;}
@@ -55,26 +67,41 @@
         <dl id="messages"></dl>
         <div id="flyouts">
             <div id="fo-users">
-                <p>hi</p>
+                <p></p>
             </div>
             <div id="fo-options">
                 <form id="options" action="">
-                    <label for="bold">Bold</label>
-                    <input type="checkbox" value="bold" />
-                    <label for="italic">Italic</label>
-                    <input type="checkbox" value="italic" />
-                    <label for="strikethrough">Strikethrough</label>
-                    <input type="checkbox" value="strikethrough" />
-                    <label for="marquee">Marquee</label>
-                    <input type="checkbox" value="marquee" />
-                    <select class="set-colour" name="change" size="5">
-                        <option value="black"></option>
-                        <option value="green"></option>
-                        <option value="blue"></option>
-                        <option value="yellow"></option>
-                        <option value="red"></option>
-                    </select>
-                    <button>Save</button>
+                    <span>
+                        <input type="checkbox" value="bold">
+                        <label for="bold">Bold</label>
+                    </span>
+                    <span>
+                        <input type="checkbox" value="italic">
+                        <label for="italic">Italic</label>
+                    </span>
+                    <span>
+                        <input type="checkbox" value="strikethrough">
+                        <label for="strikethrough">Strikethrough</label>
+                    </span>
+                    <span>
+                        <input type="checkbox" value="marquee">
+                        <label for="marquee">Marquee</label>
+                    </span>
+                    <span id="change-colour">
+                        <label for="change">Nickname Colour</label>
+                        <select class="set-colour" name="change" size="5">
+                            <option value="black"></option>
+                            <option value="green"></option>
+                            <option value="blue"></option>
+                            <option value="yellow"></option>
+                            <option value="red"></option>
+                        </select>
+                    </span>
+                    <span>
+                        <button>
+                            <i class="fa fa-check"></i>
+                        </button>
+                    </span>
                 </form>
             </div>
         </div>
@@ -142,6 +169,13 @@
                 if($("#fo-users").is(":visible")){
                     socket.emit("get users");
                 }
+                
+                if($("#fo-users").is(":visible") && $("#fo-options").is(":visible")){
+                    $("#fo-users").addClass("both-users");
+                    $("#fo-options").addClass("both-options");
+                }
+                else
+                    $("#fo-users, #fo-options").removeAttr("class");
             }
             function styleBuilder(){
                 var style = "";
@@ -155,32 +189,41 @@
                 
                 return style;
             }
+            function nicknameBuilder(curUser){
+                var styling = "";
+                
+                styling += "<p style='color:" + curUser.flair.colour + ";";
+                styling += curUser.flair.styles + "'>";
+                if(curUser.flair.marquee)
+                    styling += "<marquee>" + curUser.nickname + "</marquee></p>";
+                else
+                    styling += curUser.nickname + "</p>";
+                
+                return styling;
+            }
             socket.on("user event", function(user){
                 var message = "<span class='sys'>" + user + ".</span>";
                 $("#messages").append(message);
+                $("#messages").scrollTop($("#messages")[0].scrollHeight);
             });
             socket.on("chat message", function(chat){
                 chat.message = chat.message.replace(/</g, "&lt;");
                 chat.message = chat.message.replace(/>/g, "&gt;");
                 
-                var message = "<span><dt>";
-                message += "<p style='color:" + chat.user.flair.colour + ";";
-                message += user.flair.styles + "'>";
-                if(user.flair.marquee)
-                    message += "<marquee>" + chat.user.nickname + "</marquee></p>";
-                else
-                    message += chat.user.nickname + "</p>";
-                message += "</dt>";
+                var message = "<span><dt>" + nicknameBuilder(chat.user) + "</dt>";
                 message += "<dd>" + chat.message + "</dd></span>";
                 
                 $("#messages").append(message);
+                $("#messages").scrollTop($("#messages")[0].scrollHeight);
             });
             socket.on("list users", function(users){
-                $("#fo-users").html("Connected Users: " + users.length);
-                $("#fo-users").append("<br>" + user.nickname);
+                $("#fo-users").html("<p id='connUsers'>Connected Users: " + users.length + "</p>");
+                var name = "<div id='you'>" + nicknameBuilder(user) + ", that's you!</div>";
+                $("#fo-users").append(name);
+                
                 for(var i=0; i<users.length; i++){
                     if(users[i].nickname != user.nickname)
-                        $("#fo-users").append("<br>" + users[i].nickname);
+                        $("#fo-users").append(nicknameBuilder(users[i]));
                 }
             });
         </script>
