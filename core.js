@@ -12,8 +12,9 @@ IO.on("connection", function(socket){
     
     socket.on("user joined", function(user){
         users.push(user);
+        user.flair = { colour: "", styles: "" };
         console.log("user " + user.nickname + " joined. ID: " + user.id);
-        IO.emit("user event", user.nickname + " joined");
+        IO.emit("user event", {user: user, message: "joined"});
     });
     
     socket.on("chat message", function(msg){
@@ -43,7 +44,7 @@ IO.on("connection", function(socket){
         }
         
         console.log("user " + curUser.nickname + " disconnected.");
-        IO.emit("user event", curUser.nickname + " disconnected");
+        IO.emit("user event", {user: curUser, message:"disconnected"});
     });
 });
 

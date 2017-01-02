@@ -40,6 +40,8 @@
             #messages span { display: block; padding-left: 5px; }
             #messages span:nth-child(odd) { background-color: #f2f2f2; }
             #messages .sys { text-align: center; font-size: 15px; font-weight: bold; padding: 5px; }
+            #messages .sys > p { display: inline; }
+            #messages .sys marquee { width: 200px; }
             .set-colour[name=initial] { margin-top: 10px; }
             .set-colour { overflow: hidden; height: 37px; outline: 0; }
             .set-colour option { height: 35px; width: 30px; display: inline-block; cursor: pointer; }
@@ -122,6 +124,7 @@
         
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
+        <script src="http://localhost:3000/main.js"></script>
         <script>
             var user = {nickname: "", id: "", flair: {colour: "black", styles: "", marquee: false}};
             var socket = io();
@@ -146,6 +149,8 @@
                     socket.emit("chat message", chat);
                     $("#m").val("");
                 }
+                
+                $("#m").focus();
                 return false;
             });
             $("form#options").submit(function(){
@@ -158,6 +163,8 @@
                     user.flair.marquee = false;
                 
                 socket.emit("save options", user);
+                toggleFlyouts("options");
+                $("#m").focus();
                 return false;
             });
             function toggleFlyouts(elem){
@@ -202,7 +209,9 @@
                 return styling;
             }
             socket.on("user event", function(user){
-                var message = "<span class='sys'>" + user + ".</span>";
+                var message = "<span class='sys'>" + nicknameBuilder(user.user);
+                message += " " + user.message + ".</span>";
+                
                 $("#messages").append(message);
                 $("#messages").scrollTop($("#messages")[0].scrollHeight);
             });
