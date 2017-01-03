@@ -1,0 +1,206 @@
+/* Globals */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    font: 13px Helvetica, Arial;
+}
+button{
+    cursor: pointer;
+}
+
+/* Beginning Form */
+form#begin{
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    background-color: darkgrey;
+    z-index: 1;
+}
+form#begin div{
+    position: absolute;
+    top: calc(50% - 83px);
+    left: calc(50% - 150px);
+    width: 300px;
+    text-align: center;
+}
+form#begin input{
+    outline: 0;
+    background-color: darkgrey;
+    width: 300px;
+    font-size: 50px;
+    border: 0;
+    border-bottom: 3px solid white;
+}
+form#begin button{
+    font-size: 30px;
+    width: 250px;
+    margin-top: 10px;
+    background-color: grey;
+    border: 2px solid white;
+    color: white;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+/*** Control Bar ***/
+#controls{
+    background: darkgrey;
+    padding: 3px;
+    position: fixed;
+    bottom: 2px;
+    width: 100%;
+}
+#controls > div{
+    display: inline-block;
+}
+#controls > div > button{
+    height: 30px;
+    width: 30px;
+}
+/* Messaging Form */
+form#chat{
+    display: inline-block;
+    width: calc(100% - 70px);
+}
+form#chat input{
+    height: 30px;
+    padding: 5px;
+    width: calc(100% - 55px);
+}
+form#chat button{
+    height: 30px;
+    width: 50px;
+}
+/* Flyouts */
+#flyouts{
+    position: fixed;
+    bottom: 38px;
+    width: 100%;
+    height: 170px;
+    margin-bottom: -2px;
+}
+#flyouts > div{
+    display: none;
+}
+#fo-users{
+    height: 170px;
+    width: 200px;
+    overflow: auto;
+    border: 2px solid #aaaaaa;
+    border-top-right-radius: 10px;
+    padding: 5px;
+    background-color: white;
+}
+#connUsers{
+    border-bottom: 2px solid #aaaaaa;
+    margin-left: -5px;
+    padding-left: 5px;
+    width: 75%;
+    margin-bottom: 5px;
+}
+#you > p{
+    display: inline;
+}
+#fo-options{
+    border: 2px solid #aaaaaa;
+    border-top-right-radius: 10px;
+    padding: 5px;
+    height: 170px;
+    background-color: white;
+    position: relative;
+}
+#fo-options span{
+    display: block;
+}
+#fo-options label{
+    width: 20px;
+}
+#change-colour > label{
+    display: block;
+    margin-top: 10px;
+    width: 100%;
+}
+#fo-options span:last-child{
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+}
+.both-options{
+    bottom: 13px;
+    margin-left: -6px;
+}
+.both-users{
+    border-top-right-radius: 0 !important;
+}
+
+/* Messages */
+#messages{
+    position: absolute;
+    height: calc(100% - 40px);
+    width: 100%;
+    overflow: auto;
+}
+#messages dt,
+dd{
+    display: inline-block;
+}
+#messages dt{
+    width: 100px;
+}
+#messages dd{
+    width: calc(100% - 100px);
+}
+#messages span{
+    display: block;
+    padding-left: 5px;
+}
+#messages span:nth-child(odd){
+    background-color: #f2f2f2;
+}
+#messages .sys{
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 5px;
+}
+#messages .sys > p{
+    display: inline;
+}
+#messages .sys marquee{
+    width: 200px;
+}
+
+/* Colour Selector */
+.set-colour[name=initial]{
+    margin-top: 10px;
+}
+.set-colour{
+    overflow: hidden;
+    height: 37px;
+    outline: 0;
+}
+.set-colour option{
+    height: 35px;
+    width: 30px;
+    display: inline-block;
+    cursor: pointer;
+}
+option[value=black]{
+    background-color: black;
+}
+option[value=green]{
+    background-color: green;
+}
+option[value=blue]{
+    background-color: blue;
+}
+option[value=yellow]{
+    background-color: yellow
+}
+option[value=red]{
+    background-color: red
+}

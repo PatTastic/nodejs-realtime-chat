@@ -1,8 +1,10 @@
-var Core = require("express")();
+var express = require("express");
+var Core = express();
 var HTTP = require("http").Server(Core);
 var IO = require("socket.io")(HTTP);
 var users = [];
 
+Core.use(express.static("assets/"));
 Core.get("/", function(req, res){
     res.sendFile(__dirname + "/index.html");
 });
