@@ -3,6 +3,7 @@ var Core = express();
 var HTTP = require('http').Server(Core);
 var IO = require('socket.io')(HTTP);
 var users = {};
+var debug = false;
 
 Core.use(express.static('assets/'));
 Core.get('/', function(req, res){
@@ -10,27 +11,28 @@ Core.get('/', function(req, res){
 });
 
 IO.on('connection', function(socket){
-    console.log('User connected: ' + socket.id);
+    log('User connected: ' + socket.id)
 
-    socket.on("room", function(room){
+    socket.on('room', function(room){
         socket.join(room);
     });
 
     socket.on('user joined', function(user){
         users[user.id] = user;
         user.flair = { colour: '', styles: '' };
-        console.log('user ' + user.nickname + ' joined. ID: ' + user.id);
+        log('user ' + user.nickname + ' joined. ID: ' + user.id);
         IO.emit('user event', {user: user, message: 'joined'});
     });
 
-    socket.on('chat message', function(msg){
-        IO.sockets.in('test1').emit('chat message', msg);
-        // IO.emit('chat message', msg);
+    socket.on('chat message', function(chat){
+        IO.sockets.in(chat.user.inRoom).emit('chat message', chat);
+        //IO.emit('chat message', msg);
     });
 
     socket.on('save options', function(user){
         if(doesExist(users[user.id])){
           users[user.id] = user;
+          log(user.name + ' updated their options');
         }
     });
 
@@ -42,11 +44,11 @@ IO.on('connection', function(socket){
         var curUser = {};
 
         if(doesExist(users[this.client.id])){
-          curUser = users[this.client.id];
-          delete users[this.client.id];
+            curUser = users[this.client.id];
+            delete users[this.client.id];
         }
 
-        console.log('user ' + curUser.nickname + ' disconnected.');
+        log('user ' + curUser.nickname + ' disconnected.');
         IO.emit('user event', {user: curUser, message:'disconnected'});
     });
 });
@@ -57,5 +59,11 @@ HTTP.listen(3000, function(){
 
 // Helper Functions //
 function doesExist(elem){
-  return !(typeof elem === 'undefined' || elem == null);
+    return !(typeof elem === 'undefined' || elem == null);
+}
+
+function log(msg){
+    if(debug){
+        console.log(msg);
+    }
 }

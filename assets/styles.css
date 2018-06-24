@@ -19,14 +19,23 @@ form#begin{
     background-color: darkgrey;
     z-index: 1;
 }
-form#begin div{
+#begin-container{
+    width: 300px;
+    position: absolute;
+    left: calc(50% - 150px);
+    top: 30px;
+}
+#begin-nickname{
+    text-align: center;
+}
+/* #begin-nickname{
     position: absolute;
     top: calc(50% - 83px);
     left: calc(50% - 150px);
     width: 300px;
     text-align: center;
-}
-form#begin input{
+} */
+#nickname{
     outline: 0;
     background-color: darkgrey;
     width: 300px;
@@ -34,7 +43,7 @@ form#begin input{
     border: 0;
     border-bottom: 3px solid white;
 }
-form#begin button{
+/* form#begin button{
     font-size: 30px;
     width: 250px;
     margin-top: 10px;
@@ -43,7 +52,7 @@ form#begin button{
     color: white;
     padding: 5px;
     border-radius: 10px;
-}
+} */
 
 /*** Control Bar ***/
 #controls{
@@ -65,7 +74,7 @@ form#chat{
     display: inline-block;
     width: calc(100% - 70px);
 }
-form#chat input{
+#m{
     height: 30px;
     padding: 5px;
     width: calc(100% - 55px);
@@ -112,10 +121,10 @@ form#chat button{
     background-color: white;
     position: relative;
 }
-#fo-options span{
+.option{
     display: block;
 }
-#fo-options label{
+.option label{
     width: 20px;
 }
 #change-colour > label{
@@ -123,11 +132,16 @@ form#chat button{
     margin-top: 10px;
     width: 100%;
 }
-#fo-options span:last-child{
+#options-save{
     display: block;
     width: 100%;
     text-align: center;
     margin-top: 10px;
+}
+#options-save button{
+    background: none;
+    border: none;
+    font-size: 150%;
 }
 .both-options{
     bottom: 13px;
@@ -145,7 +159,7 @@ form#chat button{
     overflow: auto;
 }
 #messages dt,
-dd{
+#messages dd{
     display: inline-block;
 }
 #messages dt{

@@ -8,16 +8,27 @@
     </head>
     <body>
         <form id="begin" action="">
-            <div>
-                <input id="nickname" maxlength="16" placeholder="Nickname" autofocus />
-                <select class="set-colour" name="initial" size="5">
-                    <option value="black"></option>
-                    <option value="green"></option>
-                    <option value="blue"></option>
-                    <option value="yellow"></option>
-                    <option value="red"></option>
-                </select>
-                <button>Set Nickname</button>
+            <div id="begin-container">
+                <div id="begin-nickname">
+                    <input id="nickname" maxlength="16" placeholder="Nickname" autofocus />
+                    <select class="set-colour" name="initial" size="5">
+                        <option value="black"></option>
+                        <option value="green"></option>
+                        <option value="blue"></option>
+                        <option value="yellow"></option>
+                        <option value="red"></option>
+                    </select>
+                </div>
+                <br />
+                <div id="begin-room">
+                    <h2>Join A Room:</h2>
+                    <div id="availableRooms">
+                        <button>content</button>
+                        <button>content</button>
+                        <button>content</button>
+                        <button>content</button>
+                    </div>
+                </div>
             </div>
         </form>
         <dl id="messages"></dl>
@@ -27,23 +38,23 @@
             </div>
             <div id="fo-options">
                 <form id="options" action="">
-                    <span>
+                    <span class="option">
                         <input type="checkbox" value="bold">
                         <label for="bold">Bold</label>
                     </span>
-                    <span>
+                    <span class="option">
                         <input type="checkbox" value="italic">
                         <label for="italic">Italic</label>
                     </span>
-                    <span>
+                    <span class="option">
                         <input type="checkbox" value="strikethrough">
                         <label for="strikethrough">Strikethrough</label>
                     </span>
-                    <span>
+                    <span class="option">
                         <input type="checkbox" value="marquee">
                         <label for="marquee">Marquee</label>
                     </span>
-                    <span id="change-colour">
+                    <span id="change-colour" class="option">
                         <label for="change">Nickname Colour</label>
                         <select class="set-colour" name="change" size="5">
                             <option value="black"></option>
@@ -53,9 +64,9 @@
                             <option value="red"></option>
                         </select>
                     </span>
-                    <span>
+                    <span id="options-save">
                         <button>
-                            <i class="fa fa-check"></i>
+                            <i class="fa fa-save"></i>
                         </button>
                     </span>
                 </form>
@@ -75,7 +86,7 @@
                 <button>Send</button>
             </form>
         </div>
-        
+
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="main.js"></script>

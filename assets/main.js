@@ -1,32 +1,41 @@
-var user = {nickname: "", id: "", flair: {colour: "black", styles: "", marquee: false}};
+var user = {
+    nickname: '',
+    id: '',
+    inRoom: '',
+    flair: {
+        colour: 'black',
+        styles: '',
+        marquee: false
+    }
+};
 var socket = io();
 
 /* Forms */
 // Beginning Form
-$("form#begin").submit(function(){
-    if($("#nickname").val() != ""){
-        var selectedColour = $(".set-colour[name=initial]").val();
+$('form#begin').submit(function(){
+    if($('#nickname').val() != ''){
+        var selectedColour = $('.set-colour[name=initial]').val();
 
-        user.flair.colour = (select == null || selectedColour == "") ? 'black' : selectedColour;
-        user.nickname = $("#nickname").val();
+        user.flair.colour = (typeof select === 'undefined' || select == null || selectedColour == '') ? 'black' : selectedColour;
+        user.nickname = $('#nickname').val();
         user.id = socket.id;
-        socket.emit("user joined", user);
+        socket.emit('user joined', user);
 
-        $("form#begin").hide();
-        $("#m").focus();
+        $('form#begin').hide();
+        $('#m').focus();
     }
 
     return false;
 });
 
 // Chat Form
-$("form#chat").submit(function(){
-    var msgElem = $("#m");
+$('form#chat').submit(function(){
+    var msgElem = $('#m');
 
-    if(msgElem.val() != ""){
+    if(msgElem.val() != ''){
         var chat = {user: user, message: msgElem.val()};
-        socket.emit("chat message", chat);
-        msgElem.val("");
+        socket.emit('chat message', chat);
+        msgElem.val('');
     }
 
     msgElem.focus();
@@ -34,14 +43,14 @@ $("form#chat").submit(function(){
 });
 
 // Options Form
-$("form#options").submit(function(){
-    user.flair.colour = $(".set-colour[name=change]").val();
+$('form#options').submit(function(){
+    user.flair.colour = $('.set-colour[name=change]').val();
     user.flair.styles = styleBuilder();
-    user.flair.marquee = $("input[value=marquee]").is(":checked");
+    user.flair.marquee = $('input[value=marquee]').is(':checked');
 
-    socket.emit("save options", user);
-    toggleFlyouts("options");
-    $("#m").focus();
+    socket.emit('save options', user);
+    toggleFlyouts('options');
+    $('#m').focus();
 
     return false;
 });
@@ -49,37 +58,37 @@ $("form#options").submit(function(){
 /* Helper Functions */
 // Toggle Flyouts
 function toggleFlyouts(elem){
-    if(!($("#fo-" + elem).is(":visible"))){
-        $("#fo-" + elem).css("display", "inline-block");
+    if(!($('#fo-' + elem).is(':visible'))){
+        $('#fo-' + elem).css('display', 'inline-block');
     }
     else{
-        $("#fo-" + elem).removeAttr("style");
+        $('#fo-' + elem).removeAttr('style');
     }
 
-    if($("#fo-users").is(":visible")){
-        socket.emit("get users");
+    if($('#fo-users').is(':visible')){
+        socket.emit('get users');
     }
 
-    if($("#fo-users").is(":visible") && $("#fo-options").is(":visible")){
-        $("#fo-users").addClass("both-users");
-        $("#fo-options").addClass("both-options");
+    if($('#fo-users').is(':visible') && $('#fo-options').is(':visible')){
+        $('#fo-users').addClass('both-users');
+        $('#fo-options').addClass('both-options');
     }
     else{
-        $("#fo-users, #fo-options").removeAttr("class");
+        $('#fo-users, #fo-options').removeAttr('class');
     }
 }
 
 // Style Builder
 // returns a string with all selected styles from Options flyout
 function styleBuilder(){
-    var style = "";
+    var style = '';
 
-    if($("input[value=bold]").is(":checked"))
-        style = "font-weight:bold;";
-    if($("input[value=italic]").is(":checked"))
-        style += "font-style:italic;";
-    if($("input[value=strikethrough]").is(":checked"))
-        style += "text-decoration:line-through;";
+    if($('input[value=bold]').is(':checked'))
+        style = 'font-weight:bold;';
+    if($('input[value=italic]').is(':checked'))
+        style += 'font-style:italic;';
+    if($('input[value=strikethrough]').is(':checked'))
+        style += 'text-decoration:line-through;';
 
     return style;
 }
@@ -87,64 +96,72 @@ function styleBuilder(){
 // Nickname Builder
 // returns a <p> with all styles and and possible marquee
 function nicknameBuilder(curUser){
-    var styling = "<p style='color:" + curUser.flair.colour + ";" + curUser.flair.styles + "'>";
+    var styling = '<p style="color:' + curUser.flair.colour + ';' + curUser.flair.styles + '">';
 
     if(curUser.flair.marquee){
-        styling += "<marquee>" + curUser.nickname + "</marquee></p>";
+        styling += '<marquee>' + curUser.nickname + '</marquee>';
     }
     else{
-        styling += curUser.nickname + "</p>";
+        styling += curUser.nickname;
     }
+
+    styling += '</p>';
 
     return styling;
 }
 
 // Style Selection
 // click label to select checkbox
-$("label").click(function(){
-    var elem = "input[value=" + this.htmlFor + "]";
-    var isChecked = $(elem).prop("checked") == true;
+$('label').click(function(){
+    var elem = 'input[value=' + this.htmlFor + ']';
+    var isChecked = $(elem).prop('checked') == true;
 
-    $(elem).prop("checked", isChecked);
+    $(elem).prop('checked', isChecked);
 });
+
+// check if an element exists
+function doesExist(elem){
+    return !(typeof elem === 'undefined' || elem == null);
+}
 
 /* Socket Events */
 // Connect to a room
-socket.on("connect", function(){
-  var roomName = 'test1';
-  socket.emit("room", roomName);
+socket.on('connect', function(){
+    var roomName = 'global';
+    user.inRoom = roomName;
+    socket.emit('room', roomName);
 });
 
 // User Event, either user join or user disconnect
-socket.on("user event", function(user){
-    var message = "<span class='sys'>" + nicknameBuilder(user.user);
-        + " " + user.message + ".</span>";
+socket.on('user event', function(user){
+    var message = '<span class="sys">' + nicknameBuilder(user.user)
+        + ' ' + user.message + '.</span>';
 
-    $("#messages").append(message);
-    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+    $('#messages').append(message);
+    $('#messages').scrollTop($('#messages')[0].scrollHeight);
 });
 
 // Prints Chat Message
-socket.on("chat message", function(chat){
-    chat.message = chat.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+socket.on('chat message', function(chat){
+    chat.message = chat.message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    var message = "<span><dt>" + nicknameBuilder(chat.user) + "</dt>";
-        + "<dd>" + chat.message + "</dd></span>";
+    var message = '<span><dt>' + nicknameBuilder(chat.user) + '</dt>'
+        + '<dd>' + chat.message + '</dd></span>';
 
-    $("#messages").append(message);
-    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+    $('#messages').append(message);
+    $('#messages').scrollTop($('#messages')[0].scrollHeight);
 });
 
 // Lists Users in the List Users Flyout
-socket.on("list users", function(users){
-    $("#fo-users").html("<p id='connUsers'>Connected Users: " + Object.keys(users).length + "</p>");
+socket.on('list users', function(users){
+    $('#fo-users').html('<p id="connUsers">Connected Users: ' + Object.keys(users).length + '</p>');
 
-    var name = "<div id='you'>" + nicknameBuilder(user) + ", that's you!</div>";
-    $("#fo-users").append(name);
+    var name = '<div id="you">' + nicknameBuilder(user) + ', that\'s you!</div>';
+    $('#fo-users').append(name);
 
     for(var id in users){
-      if(users[id].nickname != user.nickname){
-        $("#fo-users").append(nicknameBuilder(users[id]));
-      }
+        if(users[id].nickname != user.nickname){
+            $('#fo-users').append(nicknameBuilder(users[id]));
+        }
     }
 });
