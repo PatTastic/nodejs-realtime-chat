@@ -8,7 +8,18 @@ var user = {
         marquee: false
     }
 };
+var allRooms = {};
 var socket = io();
+
+/* Initial Load */
+// (function(){
+//     var room = window.location.search.match(/(room=)\w+/g);
+//     if(room != null && room.length > 0){
+//         room = room[0];
+//         room = room.substr(room.indexOf('=') + 1);
+//         joinRoom(room);
+//     }
+// })();
 
 /* Forms */
 // Begin Form
@@ -45,15 +56,28 @@ $('form#options').submit(function(){
 
 // Room Selection
 $('body').on('click', '.room', function(e){
-    joinRoom(e.target.dataset.roomId)
+    joinRoom(e.target.dataset.roomId);
 });
 $('#create-room').click(function(){
-    var room = $('#create-room-name').val();
-    if(room == '' || room.length < 2){
+    var newRoom = $('#create-room-name').val();
+    if(newRoom == '' || newRoom.length < 2){
         alert('Name must be at least 3 characters long');
     }
     else{
-        joinRoom(room);
+        var alreadyExists = false;
+        for(var room in allRooms){
+            if(room == newRoom){
+                alreadyExists = true;
+                break;
+            }
+        }
+
+        if(alreadyExists){
+            alert('A room with this name already exists!');
+        }
+        else{
+            joinRoom(newRoom);
+        }
     }
 });
 function joinRoom(roomId){
@@ -148,7 +172,9 @@ socket.on('connect', function(){
 });
 
 socket.on('display rooms', function(rooms){
+    allRooms = rooms;
     var roomsHTML = '';
+
     if(Object.keys(rooms).length === 0){
         roomsHTML = '<p class="no-rooms">No rooms available.</p>'
             + '<p class="no-rooms">Create one now!</p>';
@@ -179,6 +205,16 @@ socket.on('user event', function(user){
 // Prints Chat Message
 socket.on('chat message', function(chat){
     chat.message = chat.message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    var linkRegex =/((https?)(:\/\/)\S+\.[a-zA-Z]+(\S*))|(\S+\.\S+)/gi;
+    var links = chat.message.match(linkRegex);
+    if(links != null && links.length > 0){
+        for(var i=0; i<links.length; i++){
+            var protocol = (links[i].indexOf('http') === -1) ? 'http://' : '';
+            var a = '<a target="_blank" href="' + protocol + links [i] + '">' + links[i] + '</a>';
+            chat.message = chat.message.replace(links[i], a);
+        }
+    }
 
     var message = '<span><dt>' + nicknameBuilder(chat.user) + '</dt>'
         + '<dd>' + chat.message + '</dd></span>';
