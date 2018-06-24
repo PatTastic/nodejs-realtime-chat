@@ -11,20 +11,8 @@ var user = {
 var socket = io();
 
 /* Forms */
-// Beginning Form
+// Begin Form
 $('form#begin').submit(function(){
-    if($('#nickname').val() != ''){
-        var selectedColour = $('.set-colour[name=initial]').val();
-
-        user.flair.colour = (typeof select === 'undefined' || select == null || selectedColour == '') ? 'black' : selectedColour;
-        user.nickname = $('#nickname').val();
-        user.id = socket.id;
-        socket.emit('user joined', user);
-
-        $('form#begin').hide();
-        $('#m').focus();
-    }
-
     return false;
 });
 
@@ -54,6 +42,35 @@ $('form#options').submit(function(){
 
     return false;
 });
+
+// Room Selection
+$('body').on('click', '.room', function(e){
+    joinRoom(e.target.dataset.roomId)
+});
+$('#create-room').click(function(){
+    var room = $('#create-room-name').val();
+    if(room == '' || room.length < 2){
+        alert('Name must be at least 3 characters long');
+    }
+    else{
+        joinRoom(room);
+    }
+});
+function joinRoom(roomId){
+    if($('#nickname').val() != ''){
+        var selectedColour = $('.set-colour[name=initial]').val();
+
+        user.flair.colour = (typeof select === 'undefined' || select == null || selectedColour == '') ? 'black' : selectedColour;
+        user.nickname = $('#nickname').val();
+        user.id = socket.id;
+        user.inRoom = roomId;
+        socket.emit('room', roomId);
+        socket.emit('user joined', user);
+
+        $('form#begin').hide();
+        $('#m').focus();
+    }
+}
 
 /* Helper Functions */
 // Toggle Flyouts
@@ -127,10 +144,28 @@ function doesExist(elem){
 /* Socket Events */
 // Connect to a room
 socket.on('connect', function(){
-    var roomName = 'global';
-    user.inRoom = roomName;
-    socket.emit('room', roomName);
+    socket.emit('get rooms');
 });
+
+socket.on('display rooms', function(rooms){
+    var roomsHTML = '';
+    if(Object.keys(rooms).length === 0){
+        roomsHTML = '<p class="no-rooms">No rooms available.</p>'
+            + '<p class="no-rooms">Create one now!</p>';
+    }
+    else{
+        for(var room in rooms){
+            if(rooms.hasOwnProperty(room)){
+                roomsHTML += '<button class="room" data-room-id="' + room + '">'
+                    + '<p class="room-name">' + room + '</p>'
+                    + '<p class="room-occupancy">' + rooms[room].length + '</p>'
+                    + '</button>';
+            }
+        }
+    }
+
+    $("#availableRooms").html(roomsHTML);
+})
 
 // User Event, either user join or user disconnect
 socket.on('user event', function(user){

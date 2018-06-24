@@ -3,7 +3,8 @@ var Core = express();
 var HTTP = require('http').Server(Core);
 var IO = require('socket.io')(HTTP);
 var users = {};
-var debug = false;
+var rooms = {};
+var debug = true;
 
 Core.use(express.static('assets/'));
 Core.get('/', function(req, res){
@@ -11,10 +12,23 @@ Core.get('/', function(req, res){
 });
 
 IO.on('connection', function(socket){
-    log('User connected: ' + socket.id)
+    log('User connected: ' + socket.id);
+
+    socket.on('get rooms', function(){
+        IO.emit('display rooms', rooms);
+    })
 
     socket.on('room', function(room){
         socket.join(room);
+
+        if(doesExist(rooms[room])){
+            rooms[room].push(this.client.id);
+        }
+        else{
+            rooms[room] = [
+                this.client.id
+            ];
+        }
     });
 
     socket.on('user joined', function(user){
@@ -46,6 +60,18 @@ IO.on('connection', function(socket){
         if(doesExist(users[this.client.id])){
             curUser = users[this.client.id];
             delete users[this.client.id];
+        }
+        if(doesExist(rooms[curUser.inRoom])){
+            if(rooms[curUser.inRoom].length <= 1){
+                delete rooms[curUser.inRoom];
+            }
+            else{
+                for(var i=0; i<rooms[curUser.inRoom].length; i++){
+                    if(rooms[curUser.inRoom][i] == curUser.id){
+                        rooms[curUser.inRoom].splice(i, 1);
+                    }
+                }
+            }
         }
 
         log('user ' + curUser.nickname + ' disconnected.');

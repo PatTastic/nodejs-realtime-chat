@@ -16,43 +16,87 @@ form#begin{
     height: 100%;
     position: absolute;
     width: 100%;
-    background-color: darkgrey;
+    background-color: #f1ad57;
     z-index: 1;
 }
-#begin-container{
-    width: 300px;
+#begin-bg{
+    background: url('bg.gif');
+    background-size: cover;
+    background-position-x: center;
     position: absolute;
-    left: calc(50% - 150px);
-    top: 30px;
+    width: 100%;
+    height: 100%;
+}
+#begin-container{
+    padding: 50px;
+    width: 400px;
+    position: absolute;
+    left: calc(50% - 200px);
 }
 #begin-nickname{
     text-align: center;
 }
-/* #begin-nickname{
+#begin-room{
+    max-height: calc(100vh - 250px);
+    margin-top: 50px;
+    overflow-y: auto;
+}
+#begin-room h2{
+    margin-bottom: 5px;
+    font-size: 200%;
+}
+#create-room-container{
+    border: 1px solid black;
+    background: whitesmoke;
+    height: 33px;
+}
+#create-room-name{
+    background: none;
+    border: none;
+    height: 100%;
+    width: calc(100% - 50px);
+    padding: 8px;
+    outline: none;
+}
+#create-room{
+    background: white;
+    border: none;
+    height: 100%;
+    width: 46px;
+    outline: none;
+}
+.room{
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px;
+    background: whitesmoke;
+    border: 1px solid black;
+    margin-top: -1px;
+    position: relative;
+}
+.room:hover{
+    background: white;
+}
+.room p{
+    display: inline-block;
+}
+.room .room-occupancy{
     position: absolute;
-    top: calc(50% - 83px);
-    left: calc(50% - 150px);
-    width: 300px;
+    right: 10px;
+}
+.no-rooms{
     text-align: center;
-} */
+    margin-top: 5px;
+}
 #nickname{
     outline: 0;
-    background-color: darkgrey;
+    background-color: transparent;
     width: 300px;
     font-size: 50px;
     border: 0;
     border-bottom: 3px solid white;
 }
-/* form#begin button{
-    font-size: 30px;
-    width: 250px;
-    margin-top: 10px;
-    background-color: grey;
-    border: 2px solid white;
-    color: white;
-    padding: 5px;
-    border-radius: 10px;
-} */
 
 /*** Control Bar ***/
 #controls{
@@ -144,7 +188,7 @@ form#chat button{
     font-size: 150%;
 }
 .both-options{
-    bottom: 13px;
+    bottom: 9px;
     margin-left: -6px;
 }
 .both-users{
@@ -173,7 +217,7 @@ form#chat button{
     padding-left: 5px;
 }
 #messages span:nth-child(odd){
-    background-color: #f2f2f2;
+    background-color: #f8f8f8;
 }
 #messages .sys{
     text-align: center;
