@@ -8,16 +8,30 @@ var user = {
         marquee: false
     }
 };
+var linkedRoom = null;
 var allRooms = {};
 var socket = io();
 
 /* Initial Load */
 (function(){
-    var room = window.location.search.match(/(room=)\w+/g);
-    if(room != null && room.length > 0){
+    // check if user is using a share link
+    if(window.location.search.match(/^(\?room=)\w+(\&key=).*$/gi)){
+        // get room
+        var room = window.location.search.match(/(room=)\w+/g);
         room = room[0];
         room = room.substr(room.indexOf('=') + 1);
         $('#join-room-name').val(room);
+
+        // get key
+        var key = window.location.search.match(/(key=).*/g);
+        key = key[0];
+        key = key.substr(key.indexOf('=') + 1);
+
+
+        linkedRoom = {
+            name: room,
+            key: key
+        };
     }
 })();
 
@@ -94,19 +108,7 @@ $('#join-room').click(function(){
 function joinRoom(roomId, isPrivate){
     if($('#nickname').val() != ''){
         var selectedColour = $('.set-colour[name=initial]').val();
-        var link = window.location.origin + '/?room=' + roomId;
-
-        user.flair.colour = (typeof select === 'undefined' || select == null || selectedColour == '') ? 'black' : selectedColour;
-        user.nickname = $('#nickname').val();
-        user.id = socket.id;
-        user.inRoom = roomId;
-        socket.emit('room', roomId, isPrivate);
-        socket.emit('user joined', user);
-
-        $('#room-name').html(roomId);
-        $('#room-link-copy').val(link);
-        $('form#begin').hide();
-        $('#m').focus();
+        socket.emit('room', roomId, isPrivate, linkedRoom);
     }
 }
 
@@ -157,29 +159,23 @@ function styleBuilder(){
 // Nickname Builder
 // returns a <p> with all styles and and possible marquee
 function nicknameBuilder(curUser){
-    var styling = '<p style="color:' + curUser.flair.colour + ';' + curUser.flair.styles + '">';
+    var styling = '';
+
+    if(doesExist(curUser.flair)){
+        styling = '<p style="color:' + curUser.flair.colour + ';' + curUser.flair.styles + '">';
+    }
 
     if(curUser.flair.marquee){
-        styling += '<marquee>' + curUser.nickname + '</marquee>';
+        styling += '<marquee>' + curUser.nickname + '</marquee></p>';
     }
     else{
-        styling += curUser.nickname;
+        styling += curUser.nickname + '</p>';
     }
-
-    styling += '</p>';
 
     return styling;
 }
 
 // Style Selection
-// click label to select checkbox
-$('label').click(function(){
-    var elem = 'input[value=' + this.htmlFor + ']';
-    var isChecked = $(elem).prop('checked') == true;
-
-    $(elem).prop('checked', isChecked);
-});
-
 // check if an element exists
 function doesExist(elem){
     return !(typeof elem === 'undefined' || elem == null);
@@ -204,14 +200,35 @@ socket.on('display rooms', function(rooms){
             if(rooms.hasOwnProperty(room)){
                 roomsHTML += '<button class="room" data-room-id="' + room + '">'
                     + '<p class="room-name">' + room + '</p>'
-                    + '<p class="room-occupancy">' + rooms[room].length + '</p>'
+                    + '<p class="room-occupancy">' + rooms[room].users.length + '</p>'
                     + '</button>';
             }
         }
     }
 
     $("#availableRooms").html(roomsHTML);
-})
+});
+
+socket.on('room confirmed', function(room, wasConfirmed, key){
+    if(wasConfirmed == true){
+        var link = window.location.origin + '/?room=' + room + '&key=' + key;
+
+        user.flair.colour = (typeof select === 'undefined' || select == null || selectedColour == '') ? 'black' : selectedColour;
+        user.nickname = $('#nickname').val();
+        user.id = socket.id;
+        user.inRoom = room;
+        socket.emit('user joined', user);
+
+        $('#room-name').html(room);
+        $('#room-link-copy').val(link);
+        $('form#begin').hide();
+        $('#m').focus();
+    }
+    else{
+        alert('Secret Key incorrect');
+        linkedRoom = null;
+    }
+});
 
 // User Event, either user join or user disconnect
 socket.on('user event', function(user){

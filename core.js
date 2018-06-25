@@ -15,7 +15,7 @@ IO.on('connection', function(socket){
     log('User connected: ' + socket.id);
 
     socket.on('get rooms', function(){
-        var publicRooms = rooms;
+        var publicRooms = JSON.parse(JSON.stringify(rooms));
         for(var room in publicRooms){
             if(publicRooms.hasOwnProperty(room)){
                 if(publicRooms[room].options.private == true){
@@ -27,22 +27,52 @@ IO.on('connection', function(socket){
         IO.emit('display rooms', publicRooms);
     })
 
-    socket.on('room', function(room, isPrivate){
-        socket.join(room);
+    socket.on('room', function(room, isPrivate, linkedRoom){
+        var allowJoin = false, confirmed = false, key = '';
 
-        if(doesExist(rooms[room])){
-            rooms[room].users.push(this.client.id);
+        if(linkedRoom != null && linkedRoom.name == room){
+            if(rooms.hasOwnProperty(room)){
+                if(rooms[room].options.key == linkedRoom.key){
+                    allowJoin = true;
+                }
+            }
         }
-        else{
-            rooms[room] = {
-                options: {
-                    private: isPrivate
-                },
-                users: [
-                    this.client.id
-                ]
-            };
+        else if(linkedRoom == null){
+            if(rooms.hasOwnProperty(room)){
+                if(rooms[room].options.private == false){
+                    allowJoin = true;
+                }
+            }
+            else{
+                allowJoin = true;
+            }
         }
+
+        if(allowJoin){
+            socket.join(room);
+
+            if(doesExist(rooms[room])){
+                rooms[room].users.push(this.client.id);
+                key = rooms[room].options.key;
+            }
+            else{
+                key = generateKey();
+
+                rooms[room] = {
+                    options: {
+                        private: isPrivate,
+                        key: key
+                    },
+                    users: [
+                        this.client.id
+                    ]
+                };
+            }
+
+            confirmed = true;
+        }
+
+        IO.emit('room confirmed', room, confirmed, key);
     });
 
     socket.on('user joined', function(user){
@@ -100,6 +130,10 @@ HTTP.listen(3000, function(){
 // Helper Functions //
 function doesExist(elem){
     return !(typeof elem === 'undefined' || elem == null);
+}
+
+function generateKey(){
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
 function log(msg){
