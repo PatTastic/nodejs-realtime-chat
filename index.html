@@ -21,70 +21,89 @@
                     </select>
                 </div>
                 <br />
+                <div id="begin-create">
+                    <h2>Create A Room:</h2>
+                    <div id="create-room-container">
+                        <input id="create-room-name" type="text" placeholder="Room Name" />
+                        <label>
+                            Private?
+                            <input id="create-private" type="checkbox" />
+                        </label>
+                        <button id="create-room">Create</button>
+                    </div>
+                </div>
+                <br />
                 <div id="begin-room">
                     <h2>Join A Room:</h2>
-                    <div id="create-room-container">
-                          <input id="create-room-name" type="text" placeholder="Create A Room" />
-                          <button id="create-room">Create</button>
+                    <div id="join-room-container">
+                        <input id="join-room-name" type="text" placeholder="Room Name" />
+                        <button id="join-room">Join</button>
                     </div>
                     <div id="availableRooms"></div>
                 </div>
             </div>
         </form>
-        <dl id="messages"></dl>
-        <div id="flyouts">
-            <div id="fo-users">
-                <p></p>
+        <div>
+            <div id="room-info">
+                  <h1 id="room-name"></h1>
+                  <input id="room-link-copy" type="text" />
+                  <button id="room-copy">Copy link to share</button>
             </div>
-            <div id="fo-options">
-                <form id="options" action="">
-                    <span class="option">
-                        <input type="checkbox" value="bold">
-                        <label for="bold">Bold</label>
-                    </span>
-                    <span class="option">
-                        <input type="checkbox" value="italic">
-                        <label for="italic">Italic</label>
-                    </span>
-                    <span class="option">
-                        <input type="checkbox" value="strikethrough">
-                        <label for="strikethrough">Strikethrough</label>
-                    </span>
-                    <span class="option">
-                        <input type="checkbox" value="marquee">
-                        <label for="marquee">Marquee</label>
-                    </span>
-                    <span id="change-colour" class="option">
-                        <label for="change">Nickname Colour</label>
-                        <select class="set-colour" name="change" size="5">
-                            <option value="black"></option>
-                            <option value="green"></option>
-                            <option value="blue"></option>
-                            <option value="yellow"></option>
-                            <option value="red"></option>
-                        </select>
-                    </span>
-                    <span id="options-save">
-                        <button>
-                            <i class="fa fa-save"></i>
-                        </button>
-                    </span>
+            <dl id="messages"></dl>
+            <div id="flyouts">
+                <div id="fo-users">
+                    <p></p>
+                </div>
+                <div id="fo-options">
+                    <form id="options" action="">
+                        <span class="option">
+                            <input type="checkbox" value="bold">
+                            <label for="bold">Bold</label>
+                        </span>
+                        <span class="option">
+                            <input type="checkbox" value="italic">
+                            <label for="italic">Italic</label>
+                        </span>
+                        <span class="option">
+                            <input type="checkbox" value="strikethrough">
+                            <label for="strikethrough">Strikethrough</label>
+                        </span>
+                        <span class="option">
+                            <input type="checkbox" value="marquee">
+                            <label for="marquee">Marquee</label>
+                        </span>
+                        <span id="change-colour" class="option">
+                            <label for="change">Nickname Colour</label>
+                            <select class="set-colour" name="change" size="5">
+                                <option value="black"></option>
+                                <option value="green"></option>
+                                <option value="blue"></option>
+                                <option value="yellow"></option>
+                                <option value="red"></option>
+                            </select>
+                        </span>
+                        <span id="options-save">
+                            <button>
+                                <i class="fa fa-save"></i>
+                            </button>
+                        </span>
+                    </form>
+                </div>
+            </div>
+            <div id="controls">
+                <div>
+                    <button onclick="toggleFlyouts('users')">
+                        <i class="fa fa-user-circle"></i>
+                    </button>
+                    <button onclick="toggleFlyouts('options')">
+                        <i class="fa fa-tint"></i>
+                    </button>
+                </div>
+                <form id="chat" action="">
+                    <input id="m" autocomplete="off" />
+                    <button>Send</button>
                 </form>
             </div>
-        </div>
-        <div id="controls">
-            <div>
-                <button onclick="toggleFlyouts('users')">
-                    <i class="fa fa-user-circle"></i>
-                </button>
-                <button onclick="toggleFlyouts('options')">
-                    <i class="fa fa-tint"></i>
-                </button>
-            </div>
-            <form id="chat" action="">
-                <input id="m" autocomplete="off" />
-                <button>Send</button>
-            </form>
         </div>
 
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>

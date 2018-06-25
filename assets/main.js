@@ -12,14 +12,14 @@ var allRooms = {};
 var socket = io();
 
 /* Initial Load */
-// (function(){
-//     var room = window.location.search.match(/(room=)\w+/g);
-//     if(room != null && room.length > 0){
-//         room = room[0];
-//         room = room.substr(room.indexOf('=') + 1);
-//         joinRoom(room);
-//     }
-// })();
+(function(){
+    var room = window.location.search.match(/(room=)\w+/g);
+    if(room != null && room.length > 0){
+        room = room[0];
+        room = room.substr(room.indexOf('=') + 1);
+        $('#join-room-name').val(room);
+    }
+})();
 
 /* Forms */
 // Begin Form
@@ -56,10 +56,12 @@ $('form#options').submit(function(){
 
 // Room Selection
 $('body').on('click', '.room', function(e){
-    joinRoom(e.target.dataset.roomId);
+    joinRoom(e.target.dataset.roomId, false);
 });
 $('#create-room').click(function(){
     var newRoom = $('#create-room-name').val();
+    var isPrivate = $('#create-private').is(':checked');
+
     if(newRoom == '' || newRoom.length < 2){
         alert('Name must be at least 3 characters long');
     }
@@ -76,25 +78,43 @@ $('#create-room').click(function(){
             alert('A room with this name already exists!');
         }
         else{
-            joinRoom(newRoom);
+            joinRoom(newRoom, isPrivate);
         }
     }
 });
-function joinRoom(roomId){
+$('#join-room').click(function(){
+    var name = $('#join-room-name').val();
+    if(name == ''){
+        alert('Name required');
+    }
+    else{
+        joinRoom(name, false);
+    }
+});
+function joinRoom(roomId, isPrivate){
     if($('#nickname').val() != ''){
         var selectedColour = $('.set-colour[name=initial]').val();
+        var link = window.location.origin + '/?room=' + roomId;
 
         user.flair.colour = (typeof select === 'undefined' || select == null || selectedColour == '') ? 'black' : selectedColour;
         user.nickname = $('#nickname').val();
         user.id = socket.id;
         user.inRoom = roomId;
-        socket.emit('room', roomId);
+        socket.emit('room', roomId, isPrivate);
         socket.emit('user joined', user);
 
+        $('#room-name').html(roomId);
+        $('#room-link-copy').val(link);
         $('form#begin').hide();
         $('#m').focus();
     }
 }
+
+$('#room-copy').click(function(){
+    var link = document.getElementById('room-link-copy');
+    link.select();
+    document.execCommand("copy");
+});
 
 /* Helper Functions */
 // Toggle Flyouts

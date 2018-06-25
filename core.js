@@ -15,19 +15,33 @@ IO.on('connection', function(socket){
     log('User connected: ' + socket.id);
 
     socket.on('get rooms', function(){
-        IO.emit('display rooms', rooms);
+        var publicRooms = rooms;
+        for(var room in publicRooms){
+            if(publicRooms.hasOwnProperty(room)){
+                if(publicRooms[room].options.private == true){
+                    delete publicRooms[room];
+                }
+            }
+        }
+
+        IO.emit('display rooms', publicRooms);
     })
 
-    socket.on('room', function(room){
+    socket.on('room', function(room, isPrivate){
         socket.join(room);
 
         if(doesExist(rooms[room])){
-            rooms[room].push(this.client.id);
+            rooms[room].users.push(this.client.id);
         }
         else{
-            rooms[room] = [
-                this.client.id
-            ];
+            rooms[room] = {
+                options: {
+                    private: isPrivate
+                },
+                users: [
+                    this.client.id
+                ]
+            };
         }
     });
 
@@ -62,13 +76,13 @@ IO.on('connection', function(socket){
             delete users[this.client.id];
         }
         if(doesExist(rooms[curUser.inRoom])){
-            if(rooms[curUser.inRoom].length <= 1){
+            if(rooms[curUser.inRoom].users.length <= 1){
                 delete rooms[curUser.inRoom];
             }
             else{
-                for(var i=0; i<rooms[curUser.inRoom].length; i++){
-                    if(rooms[curUser.inRoom][i] == curUser.id){
-                        rooms[curUser.inRoom].splice(i, 1);
+                for(var i=0; i<rooms[curUser.inRoom].users.length; i++){
+                    if(rooms[curUser.inRoom].users[i] == curUser.id){
+                        rooms[curUser.inRoom].users.splice(i, 1);
                     }
                 }
             }

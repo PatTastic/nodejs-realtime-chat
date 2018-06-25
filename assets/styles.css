@@ -36,34 +36,50 @@ form#begin{
 #begin-nickname{
     text-align: center;
 }
-#begin-room{
-    max-height: calc(100vh - 250px);
+#begin-create{
     margin-top: 50px;
+}
+#begin-room{
+    max-height: calc(100vh - 360px);
     overflow-y: auto;
 }
+#begin-create h2,
 #begin-room h2{
     margin-bottom: 5px;
     font-size: 200%;
 }
+#join-room-container,
 #create-room-container{
     border: 1px solid black;
     background: whitesmoke;
     height: 33px;
 }
+#join-room-name,
 #create-room-name{
     background: none;
     border: none;
     height: 100%;
-    width: calc(100% - 50px);
     padding: 8px;
     outline: none;
 }
+#join-room-name{
+    width: calc(100% - 50px);
+}
+#create-room-name{
+    width: calc(100% - 120px);
+    border-right: 1px solid black;
+}
+#join-room,
 #create-room{
     background: white;
     border: none;
     height: 100%;
     width: 46px;
     outline: none;
+    border-left: 1px solid black;
+}
+#create-private{
+    vertical-align: middle;
 }
 .room{
     display: block;
@@ -96,6 +112,25 @@ form#begin{
     font-size: 50px;
     border: 0;
     border-bottom: 3px solid white;
+}
+
+/*** Room Info ***/
+#room-info{
+    text-align: center;
+    padding: 5px;
+    border-bottom: 1px solid black;
+}
+#room-link-copy{
+    position: fixed;
+    top: -99999px;
+    left: -99999px;
+}
+#room-copy{
+    vertical-align: super;
+    background: none;
+    border: 1px solid grey;
+    padding: 2px 5px;
+    border-radius: 5px;
 }
 
 /*** Control Bar ***/
@@ -198,7 +233,7 @@ form#chat button{
 /* Messages */
 #messages{
     position: absolute;
-    height: calc(100% - 40px);
+    height: calc(100% - 105px);
     width: 100%;
     overflow: auto;
 }
